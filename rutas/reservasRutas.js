@@ -83,7 +83,7 @@ rutas.post('/crearRegistro',async (req, res)=> {
         }
     })
 
-    
+
             //REPORTES 1 HISTORIAL DE RESERVAS
             rutas.get('/reservaPorPaciente/:pacienteId', async (peticion, respuesta) =>{
                 const {pacienteId} = peticion.params;
@@ -100,7 +100,24 @@ rutas.post('/crearRegistro',async (req, res)=> {
                     respuesta.status(500).json({ mensaje :  error.message})
                 }
             })
-        
 
+            // REPORTE 2 contar todos consulta tubo el paciente 
+            rutas.get('/contarPaciente/:pacienteId', async (peticion, respuesta) => {
+                const {pacienteId} = peticion.params;
+                console.log(pacienteId);
+                try{
+                    const paciente = await PacienteModel.findById(pacienteId);
+                    
+                    if (!paciente)
+                        return respuesta.status(404).json({mensaje: 'paciente no encontrado'});
+
+                    const recetas = await RegistroreservaModel.countDocuments({ tipo: 'Consulta'}).populate('paciente');
+                    respuesta.json(recetas);
+        
+                } catch(error){
+                    respuesta.status(500).json({ mensaje :  error.message})
+                }
+
+            });
     
 module.exports= rutas;
