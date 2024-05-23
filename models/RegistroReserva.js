@@ -5,10 +5,11 @@ const RegistroreservaSchema = new mongoose.Schema({
     
     ci: Number,
     nombre: String,
-    paciente: String,
     tipo: String,
     fecha: String,
     hora: String,
+    usuario: { type: mongoose.Schema.Types.ObjectId, ref: 'Usuario' },
+    paciente: { type: mongoose.Schema.Types.ObjectId, ref: 'Paciente' }
 
 });
 

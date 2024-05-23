@@ -9,6 +9,8 @@ const app = express();
 
 //ruta
 const reservasRutas = require('./rutas/reservasRutas');
+const pacienteRutas = require('./rutas/pacienteRutas');
+
 
 //configuraciones de environment
 const PORT = process.env.PORT || 3000;
@@ -44,7 +46,9 @@ const autenticar = async (req, res, next)=>{
 
 
 app.use('/auth', authRutas);
+app.use('/pacientes',  pacienteRutas);
 app.use('/reservas', autenticar, reservasRutas);
+
 
 //utilizar las rutas de recetas
 //app.use('/reservas', reservasRutas);

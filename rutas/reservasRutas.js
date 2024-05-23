@@ -1,6 +1,8 @@
 const express = require('express');
 const rutas = express.Router();
 const RegistroreservaModel = require('../models/RegistroReserva');
+const UsuarioModel = require('../models/Usuario');
+const PacienteModel= require('../models/Paciente')
 
 //endpoint 1 traer todas los registro
 rutas.get('/ReservasTotal', async (req, res) => {
@@ -17,10 +19,11 @@ rutas.post('/crearRegistro',async (req, res)=> {
     const registro =new RegistroreservaModel({
         ci: req.body.ci,
         nombre: req.body.nombre,
-        paciente: req.body.paciente,
         tipo: req.body.tipo,
         fecha: req.body.fecha,
-        hora: req.body.hora
+        hora: req.body.hora,
+        usuario: req.body.usuario, // asignar el id del usuario
+        paciente: req.body.paciente // asignar el id de la raza
     })
     
     try {
@@ -62,4 +65,42 @@ rutas.post('/crearRegistro',async (req, res)=> {
     
     });
 
+
+        //REPORTES 1 
+    rutas.get('/reservaPorUsuario/:usuarioId', async (peticion, respuesta) =>{
+        const {usuarioId} = peticion.params;
+        console.log(usuarioId);
+        try{
+            const usuario = await UsuarioModel.findById(usuarioId);
+
+            if (!usuario)
+                return respuesta.status(404).json({mensaje: 'usuario no encontrado'});
+            const recetas = await RegistroreservaModel.find({ usuario: usuarioId}).populate('usuario');
+            respuesta.json(recetas);
+
+        } catch(error){
+            respuesta.status(500).json({ mensaje :  error.message})
+        }
+    })
+
+    
+            //REPORTES 1 HISTORIAL DE RESERVAS
+            rutas.get('/reservaPorPaciente/:pacienteId', async (peticion, respuesta) =>{
+                const {pacienteId} = peticion.params;
+                console.log(pacienteId);
+                try{
+                    const paciente = await PacienteModel.findById(pacienteId);
+                    
+                    if (!paciente)
+                        return respuesta.status(404).json({mensaje: 'paciente no encontrado'});
+                    const recetas = await RegistroreservaModel.find({ paciente: pacienteId}).populate('paciente');
+                    respuesta.json(recetas);
+        
+                } catch(error){
+                    respuesta.status(500).json({ mensaje :  error.message})
+                }
+            })
+        
+
+    
 module.exports= rutas;
