@@ -101,7 +101,7 @@ rutas.post('/crearRegistro',async (req, res)=> {
                 }
             })
 
-            // REPORTE 2 contar todos consulta tubo el paciente 
+            // REPORTE 2 contar todas cirugias que tubo el paciente 
             rutas.get('/contarPaciente/:pacienteId', async (peticion, respuesta) => {
                 const {pacienteId} = peticion.params;
                 console.log(pacienteId);
@@ -111,8 +111,8 @@ rutas.post('/crearRegistro',async (req, res)=> {
                     if (!paciente)
                         return respuesta.status(404).json({mensaje: 'paciente no encontrado'});
 
-                    const recetas = await RegistroreservaModel.countDocuments({ tipo: 'Consulta'}).populate('paciente');
-                    respuesta.json(recetas);
+                    const cantidad = await RegistroreservaModel.countDocuments({ tipo: 'cirugia'}).populate('paciente');
+                    respuesta.json(cantidad);
         
                 } catch(error){
                     respuesta.status(500).json({ mensaje :  error.message})

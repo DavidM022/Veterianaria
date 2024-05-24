@@ -4,6 +4,8 @@ const Usuario = require('../models/Usuario');
 const bcrypt = require('bcrypt');
 const jwt = require('jsonwebtoken');
 
+const tokensInvalidos = require('./token');
+
 //Registro 
 rutas.post('/registro', async (req, res) => {
     try {
@@ -35,4 +37,41 @@ rutas.post('/iniciarsesion', async (req, res) => {
         res.status(500).json({mensaje: error.message});
     }
 });
+
+// Cierre de sesión del usuario
+rutas.post('/cerrarsesion', (req, res) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) return res.status(400).json({ mensaje: 'Token no proporcionado' });
+
+    const token = authHeader.split(' ')[1];
+    if (!token) return res.status(400).json({ mensaje: 'Token no proporcionado' });
+
+    // Invalidar el token añadiéndolo a la lista de tokens inválidos
+    tokensInvalidos.push(token);
+    res.json({ mensaje: 'Cierre de sesión exitoso' });
+});
+
+// Verificar token
+rutas.post('/verificartoken', (req, res) => {
+    const authHeader = req.headers['authorization'];
+    if (!authHeader) return res.status(400).json({ mensaje: 'Token no proporcionado' });
+
+    const token = authHeader.split(' ')[1];
+    if (tokensInvalidos.includes(token)) {
+        return res.status(401).json({ mensaje: 'Token invalido.' });
+    }
+
+    try {
+        const decodificar = jwt.verify(token, 'clave_secreta');
+        res.json({ mensaje: 'Token válido', usuarioId: decodificar.usuarioId });
+    } catch (error) {
+        res.status(401).json({ mensaje: 'Token no válido' });
+    }
+});
+
+
+
+
+
+
 module.exports = rutas;

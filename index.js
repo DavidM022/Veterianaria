@@ -11,6 +11,8 @@ const app = express();
 const reservasRutas = require('./rutas/reservasRutas');
 const pacienteRutas = require('./rutas/pacienteRutas');
 
+const tokensInvalidos= require('./rutas/token')
+
 
 //configuraciones de environment
 const PORT = process.env.PORT || 3000;
@@ -32,6 +34,12 @@ const autenticar = async (req, res, next)=>{
         const token = req.headers.authorization?.split(' ')[1];
         if (!token)
             res.status(401).json({mensaje: 'No existe el token de autenticacion'});
+
+        // Verificar si el token ha sido invalidado
+          if (tokensInvalidos.includes(token)) {
+            return res.status(401).json({ mensaje: 'No existe el token de autenticacion !!!!' });
+        }
+
         const decodificar = jwt.verify(token, 'clave_secreta');
         console.log("decodificar",decodificar);
 
@@ -44,9 +52,10 @@ const autenticar = async (req, res, next)=>{
     }
 };
 
+module.exports = tokensInvalidos;
 
 app.use('/auth', authRutas);
-app.use('/pacientes',  pacienteRutas);
+app.use('/pacientes',  autenticar, pacienteRutas);
 app.use('/reservas', autenticar, reservasRutas);
 
 
