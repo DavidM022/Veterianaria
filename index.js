@@ -1,5 +1,6 @@
 //importacion de libs
 const express = require('express');
+const cors = require('cors');
 const mongoose = require('mongoose');
 const jwt = require('jsonwebtoken');
 const authRutas = require('./rutas/authRutas')
@@ -20,6 +21,12 @@ const MONGO_URI = process.env.MONGO_URI;
 
 // manejo de JSON
 app.use(express.json());
+
+const corsOptiones={
+    origin: ['http://localhost:4200','http://localhost:4200/'],
+    optionsSuccessStatus: 200
+}
+app.use(cors(corsOptiones));
 
 //CONEXION CON MONGODB
 mongoose.connect(MONGO_URI).then(
@@ -54,10 +61,11 @@ const autenticar = async (req, res, next)=>{
 
 module.exports = tokensInvalidos;
 
-app.use('/auth', authRutas);
-app.use('/pacientes',  autenticar, pacienteRutas);
-app.use('/reservas', autenticar, reservasRutas);
+//app.use('/auth', authRutas);
+//app.use('/pacientes',  autenticar, pacienteRutas);
+//app.use('/reservas', autenticar, reservasRutas);
 
 
 //utilizar las rutas de recetas
-//app.use('/reservas', reservasRutas);
+app.use('/reservas', reservasRutas);
+app.use('/pacientes', pacienteRutas);
